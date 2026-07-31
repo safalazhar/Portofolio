@@ -101,7 +101,7 @@ export default function Skills() {
           {/* Cert 1 */}
           <div className="min-w-[300px] glass-panel p-stack-md rounded-xl snap-start">
             <div className="w-full h-40 rounded-lg mb-4 bg-surface-container overflow-hidden">
-              <img className="w-full h-full object-cover" alt="KKNI L2" src="/public/kkni.jpeg" />
+              <img className="w-full h-full object-cover" alt="KKNI L2" src="/kkni.jpeg" />
             </div>
             <h4 className="font-card-title text-card-title mb-1 text-on-surface">Sertifikat Kompetensi</h4>
             <p className="text-sm text-on-surface-variant mb-4">Skema KKNI Level II Pada Kompetensi Keahlian Teknik Komputer Jaringan.</p>
