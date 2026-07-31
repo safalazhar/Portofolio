@@ -101,10 +101,10 @@ export default function Skills() {
           {/* Cert 1 */}
           <div className="min-w-[300px] glass-panel p-stack-md rounded-xl snap-start">
             <div className="w-full h-40 rounded-lg mb-4 bg-surface-container overflow-hidden">
-              <img className="w-full h-full object-cover" alt="KKNI L2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKSKsKjayrOj11DwAMB7A31NArD-AfoVSioM6jYNlhOemQDwrtHR9S6Vr4ArfKbdLPke2Z9UCnCyXgO0DknWrWsS7mYWTuIVCZiIAim5X4vr79TIuXD-1oVPBbnmLS6C3hTt9Q4pGifYa6536ASE7uz9Jg9pwUIPFtg5qn6iRX7Me-X8sRklfFwN1S3hVNIhEOMnR6OyDdnHtt6hXm6ZziXbUOJzOf5n9QC3pS2MwY0QVqYyFE15Sr" />
+              <img className="w-full h-full object-cover" alt="KKNI L2" src="/public/kkni.jpeg" />
             </div>
-            <h4 className="font-card-title text-card-title mb-1 text-on-surface">Sertifikat KKNI L2</h4>
-            <p className="text-sm text-on-surface-variant mb-4">Kerangka Kualifikasi Nasional Indonesia Level 2 di bidang Teknologi Informasi.</p>
+            <h4 className="font-card-title text-card-title mb-1 text-on-surface">Sertifikat Kompetensi</h4>
+            <p className="text-sm text-on-surface-variant mb-4">Skema KKNI Level II Pada Kompetensi Keahlian Teknik Komputer Jaringan.</p>
             <a className="text-primary text-sm font-semibold flex items-center gap-1 hover:gap-2 transition-all" href="#">Lihat Kredensial <span className="material-symbols-outlined text-sm">arrow_forward</span></a>
           </div>
 
