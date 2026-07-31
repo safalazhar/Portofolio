@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
 export default function Contact() {
@@ -9,6 +9,7 @@ export default function Contact() {
     message: "",
   });
   const [status, setStatus] = useState("idle"); // idle, loading, success, error
+  const [showThankYou, setShowThankYou] = useState(false);
 
   const { ref: sectionRef, isIntersecting } = useIntersectionObserver({
     threshold: 0.1,
@@ -21,6 +22,26 @@ export default function Contact() {
       [e.target.name]: e.target.value,
     }));
   };
+
+  // Handle scroll to hero after thank you overlay
+  useEffect(() => {
+    if (!showThankYou) return;
+
+    const timer = setTimeout(() => {
+      setShowThankYou(false);
+      setStatus("idle");
+
+      // Scroll ke halaman awal (hero section)
+      const heroSection = document.getElementById("hero");
+      if (heroSection) {
+        heroSection.scrollIntoView({ behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [showThankYou]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,9 +61,8 @@ export default function Contact() {
       if (response.ok && data.success) {
         setStatus("success");
         setFormData({ name: "", email: "", subject: "", message: "" });
-        setTimeout(() => {
-          setStatus("idle");
-        }, 4000);
+        // Tampilkan overlay terima kasih
+        setShowThankYou(true);
       } else {
         throw new Error(data.message || "Gagal mengirim pesan.");
       }
@@ -57,6 +77,57 @@ export default function Contact() {
 
   return (
     <section id="contact" ref={sectionRef} className="py-section-gap bg-surface relative overflow-hidden">
+      {/* Thank You Overlay */}
+      {showThankYou && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center"
+          style={{
+            background: "rgba(0, 0, 0, 0.85)",
+            backdropFilter: "blur(12px)",
+            animation: "thankYouFadeIn 0.5s ease-out",
+          }}
+        >
+          <div
+            className="text-center px-8"
+            style={{ animation: "thankYouScaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+          >
+            <div
+              className="mx-auto mb-6 w-20 h-20 rounded-full flex items-center justify-center"
+              style={{
+                background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary, #8b5cf6))",
+                boxShadow: "0 0 40px rgba(99, 102, 241, 0.4)",
+              }}
+            >
+              <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                check_circle
+              </span>
+            </div>
+            <h2 className="font-display text-display-xl md:text-5xl text-white font-bold mb-3 tracking-tight">
+              Terima Kasih! 🙏
+            </h2>
+            <p className="font-body text-body-lg text-white/70 max-w-md mx-auto mb-6">
+              Pesan kamu sudah terkirim. Saya akan segera membalas secepatnya!
+            </p>
+            <div className="flex items-center justify-center gap-2 text-white/40 text-sm">
+              <span className="material-symbols-outlined animate-spin text-sm">sync</span>
+              Kembali ke halaman utama...
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Inline styles for thank you animations */}
+      <style>{`
+        @keyframes thankYouFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes thankYouScaleIn {
+          from { opacity: 0; transform: scale(0.8) translateY(20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
+
       <div className="max-w-container mx-auto px-gutter relative z-10">
         {/* Section Header */}
         <div className={`text-center mb-16 ${isIntersecting ? "animate-fade-up" : "opacity-0"}`}>
@@ -150,6 +221,12 @@ export default function Contact() {
                     <>
                       <span className="material-symbols-outlined text-xl">check_circle</span>
                       Message Sent!
+                    </>
+                  )}
+                  {status === "error" && (
+                    <>
+                      <span className="material-symbols-outlined text-xl">error</span>
+                      Gagal Mengirim
                     </>
                   )}
                 </button>
