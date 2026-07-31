@@ -9,6 +9,7 @@ export default function Contact() {
     message: "",
   });
   const [status, setStatus] = useState("idle"); // idle, loading, success, error
+  const [errorMsg, setErrorMsg] = useState("");
   const [showThankYou, setShowThankYou] = useState(false);
 
   const { ref: sectionRef, isIntersecting } = useIntersectionObserver({
@@ -46,6 +47,7 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("loading");
+    setErrorMsg("");
 
     try {
       const response = await fetch("/api/contact", {
@@ -61,7 +63,6 @@ export default function Contact() {
       if (response.ok && data.success) {
         setStatus("success");
         setFormData({ name: "", email: "", subject: "", message: "" });
-        // Tampilkan overlay terima kasih
         setShowThankYou(true);
       } else {
         throw new Error(data.message || "Gagal mengirim pesan.");
@@ -69,8 +70,10 @@ export default function Contact() {
     } catch (error) {
       console.error("Error saat mengirim pesan:", error);
       setStatus("error");
+      setErrorMsg(error.message || "Gagal mengirim pesan. Silakan coba lagi.");
       setTimeout(() => {
         setStatus("idle");
+        setErrorMsg("");
       }, 4000);
     }
   };
@@ -200,6 +203,15 @@ export default function Contact() {
                     placeholder="Tell me about your project..."
                   ></textarea>
                 </div>
+
+                {/* Error Message */}
+                {status === "error" && errorMsg && (
+                  <div className="flex items-center gap-2 text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg p-3 text-sm">
+                    <span className="material-symbols-outlined text-base">error</span>
+                    {errorMsg}
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={status === "loading" || status === "success"}

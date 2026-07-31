@@ -18,6 +18,17 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Debug endpoint - GET request to check env vars
+  if (req.method === "GET") {
+    return res.status(200).json({
+      success: true,
+      hasEmailUser: !!process.env.EMAIL_USER,
+      hasEmailPass: !!process.env.EMAIL_PASS,
+      hasReceiverEmail: !!process.env.RECEIVER_EMAIL,
+      emailUser: process.env.EMAIL_USER ? process.env.EMAIL_USER.substring(0, 3) + "***" : "NOT SET",
+    });
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({
       success: false,
@@ -44,20 +55,29 @@ export default async function handler(req, res) {
 
     // Cek apakah environment variables sudah diset
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error("ERROR: EMAIL_USER atau EMAIL_PASS belum diset di Environment Variables!");
+      console.error("ERROR: EMAIL_USER atau EMAIL_PASS belum diset!");
+      console.error("EMAIL_USER:", process.env.EMAIL_USER ? "SET" : "NOT SET");
+      console.error("EMAIL_PASS:", process.env.EMAIL_PASS ? "SET" : "NOT SET");
       return res.status(500).json({
         success: false,
-        message: "Konfigurasi email server belum lengkap. Hubungi admin.",
+        message: "Konfigurasi email belum lengkap. Hubungi admin.",
       });
     }
 
+    // Gunakan konfigurasi SMTP Gmail yang explicit
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
     });
+
+    // Verifikasi koneksi SMTP dulu
+    await transporter.verify();
+    console.log("SMTP connection verified successfully!");
 
     const mailOptions = {
       from: `"${name}" <${process.env.EMAIL_USER}>`,
@@ -80,17 +100,29 @@ export default async function handler(req, res) {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Email notifikasi berhasil dikirim!");
+    console.log("Email berhasil terkirim!");
 
     return res.status(200).json({
       success: true,
-      message: "Pesan berhasil dikirim! Saya akan segera merespons.",
+      message: "Pesan berhasil dikirim!",
     });
   } catch (error) {
-    console.error("Error pada endpoint contact:", error.message || error);
+    console.error("Error detail:", error.code, error.message);
+    
+    let userMessage = "Gagal mengirim pesan. Silakan coba lagi.";
+    
+    if (error.code === "EAUTH") {
+      userMessage = "Autentikasi email gagal. Password aplikasi mungkin salah.";
+    } else if (error.code === "ESOCKET" || error.code === "ECONNECTION") {
+      userMessage = "Tidak dapat terhubung ke server email.";
+    } else if (error.code === "ETIMEDOUT") {
+      userMessage = "Koneksi timeout. Silakan coba lagi.";
+    }
+
     return res.status(500).json({
       success: false,
-      message: "Gagal mengirim pesan. Silakan coba lagi atau hubungi langsung via email.",
+      message: userMessage,
+      debug: error.code || "UNKNOWN",
     });
   }
 }
